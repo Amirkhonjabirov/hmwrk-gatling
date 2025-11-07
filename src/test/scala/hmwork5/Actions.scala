@@ -5,25 +5,23 @@ import io.gatling.http.Predef._
 
 object Actions {
 
-  // 1️⃣ Главная страница (вход) и получение userSession
-  val MainPage = exec(
+  // 1️⃣ Главная страница (вход)
+  val MainPage =
     http("SignOff")
       .get("/cgi-bin/welcome.pl?signOff=true")
       .check(status.is(200))
-  ).exec(
+
+  // Получение userSession
+  val GetUserSession =
     http("Get user session")
       .get("/cgi-bin/nav.pl?in=home")
       .check(
         status.is(200),
         regex("""name="userSession" value="(.+?)"""").saveAs("userSession")
       )
-  ).exec { session =>
-    println(s"✅ Extracted userSession: ${session("userSession").as[String]}")
-    session
-  }
 
   // 2️⃣ Логин
-  val Login = exec(
+  val Login =
     http("Login")
       .post("/cgi-bin/login.pl")
       .formParam("userSession", "${userSession}")
@@ -32,22 +30,20 @@ object Actions {
       .formParam("login.x", "56")
       .formParam("login.y", "10")
       .check(status.is(200))
-  )
 
   // 3️⃣ Переход на страницу "Flights"
-  val FlightsPage = exec(
+  val OpenFlightsPage =
     http("Open Flights Page")
       .get("/cgi-bin/welcome.pl?page=search")
       .check(status.is(200))
-  ).pause(1)
-    .exec(
-      http("Go to Flights menu")
-        .get("/cgi-bin/nav.pl?page=menu&in=flights")
-        .check(status.is(200))
-    ).pause(1)
+
+  val GoToFlightsMenu =
+    http("Go to Flights menu")
+      .get("/cgi-bin/nav.pl?page=menu&in=flights")
+      .check(status.is(200))
 
   // 4️⃣ Поиск рейса
-  val SearchFlight = exec(
+  val SearchFlight =
     http("Search Flight")
       .post("/cgi-bin/reservations.pl")
       .formParam("advanceDiscount", "0")
@@ -64,15 +60,10 @@ object Actions {
       .formParam(".cgifields", "seatType")
       .formParam(".cgifields", "seatPref")
       .check(status.is(200))
-      .check(regex("""name="outboundFlight" value="(.+?)"""").saveAs("outboundFlight")) // извлекаем outboundFlight
-  ).exec { session =>
-    println(s"✅ Extracted outboundFlight: ${session("outboundFlight").as[String]}")
-    session
-  }.pause(1)
-
+      .check(regex("""name="outboundFlight" value="(.+?)"""").saveAs("outboundFlight"))
 
   // 5️⃣ Выбор рейса
-  val ChooseFlight = exec(
+  val ChooseFlight =
     http("Choose Flight")
       .post("/cgi-bin/reservations.pl")
       .formParam("outboundFlight", "${outboundFlight}")
@@ -83,10 +74,9 @@ object Actions {
       .formParam("reserveFlights.x", "66")
       .formParam("reserveFlights.y", "6")
       .check(status.is(200))
-  ).pause(1)
 
   // 6️⃣ Покупка билета
-  val BuyTicket = exec(
+  val BuyTicket =
     http("Buy Ticket")
       .post("/cgi-bin/reservations.pl")
       .formParam("firstName", "Bean")
@@ -108,12 +98,10 @@ object Actions {
       .formParam("buyFlights.y", "0")
       .formParam(".cgifields", "saveCC")
       .check(status.is(200))
-  ).pause(1)
 
   // 7️⃣ Возврат на главную страницу
-  val GoHome = exec(
+  val GoHome =
     http("Go Home")
       .get("/cgi-bin/welcome.pl?page=menus")
       .check(status.is(200))
-  ).pause(1)
 }

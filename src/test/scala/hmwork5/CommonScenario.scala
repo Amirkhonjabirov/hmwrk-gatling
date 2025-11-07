@@ -17,17 +17,34 @@ class CommonScenario {
 
   val scn: ScenarioBuilder = scenario("Common scenario")
     .feed(feeder)
+
+    // 1️⃣ Главная страница и получение userSession
     .exec(Actions.MainPage)
     .pause(1)
+    .exec(Actions.GetUserSession)
+    .pause(1)
+
+    // 2️⃣ Логин
     .exec(Actions.Login)
     .pause(1)
-    .exec(Actions.FlightsPage)
+
+    // 3️⃣ Переход на страницу Flights
+    .exec(Actions.OpenFlightsPage)
     .pause(1)
+    .exec(Actions.GoToFlightsMenu)
+    .pause(1)
+
+    // 4️⃣ Поиск и выбор рейса
     .exec(Actions.SearchFlight)
     .pause(1)
     .exec(Actions.ChooseFlight)
     .pause(1)
+
+    // 5️⃣ Покупка билета
     .exec(Actions.BuyTicket)
     .pause(1)
+
+    // 6️⃣ Возврат на главную
     .exec(Actions.GoHome)
 }
+
